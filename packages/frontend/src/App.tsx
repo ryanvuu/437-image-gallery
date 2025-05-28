@@ -6,6 +6,7 @@ import { ImageDetails } from "./images/ImageDetails.tsx";
 import { MainLayout } from "./MainLayout.tsx";
 import { fetchDataFromServer } from "./MockAppData.ts";
 import { useState } from "react";
+import { ValidRoutes } from "../../backend/src/shared/ValidRoutes.ts";
 
 function App() {
     const [imageData, _setImageData] = useState(fetchDataFromServer);
@@ -13,11 +14,11 @@ function App() {
     return (
         <Routes>
             <Route element={<MainLayout />}>
-                <Route path="/" element={<AllImages imageData={imageData}/>} />
-                <Route path="/upload" element={<UploadPage />} />
-                <Route path="/login" element={<LoginPage />} />
+                <Route path={ValidRoutes.HOME} element={<AllImages imageData={imageData}/>} />
+                <Route path={ValidRoutes.UPLOAD} element={<UploadPage />} />
+                <Route path={ValidRoutes.LOGIN} element={<LoginPage />} />
 
-                <Route path="/images/:imageId" element={<ImageDetails imageData={imageData}/>}></Route>
+                <Route path={ValidRoutes.IMAGE_DETAILS} element={<ImageDetails imageData={imageData}/>}></Route>
 
             </Route>
         </Routes>
