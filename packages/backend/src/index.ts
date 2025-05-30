@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import path from "path";
 import { ValidRoutes } from "./common/ValidRoutes";
 import { fetchDataFromServer } from "./common/ApiImageData";
+import { connectMongo } from "./connectMongo";
+import { ImageProvider } from "./ImageProvider";
 
 dotenv.config(); // Read the .env file in the current working directory, and load values into process.env.
 const PORT = process.env.PORT || 3000;
@@ -22,11 +24,21 @@ app.get("/api/hello", (req: Request, res: Response) => {
 
 app.get("/api/images", (req: Request, res: Response) => {
     //res.json(fetchDataFromServer());
-    waitDuration(2000)
-        .then(() => {
-            res.json(fetchDataFromServer());
+    connectMongo().connect()
+        .then(client => {
+            const imageProvider = new ImageProvider(client);
+            imageProvider.getAllImagesWithAuthors()
+                .then(images => {
+                    waitDuration(1000)
+                        .then(() => {
+                            res.json(images);
+                        });
+                });
+        })
+        .catch(error => {
+            console.error("MongoDB connection failed:", error);
         });
-})
+});
 
 
 
