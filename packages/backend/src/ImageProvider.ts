@@ -22,8 +22,17 @@ export class ImageProvider {
         return this.collection.find().toArray(); // Without any options, will by default get all documents in the collection as an array.
     }
 
-    getAllImagesWithAuthors() {
+    getAllImagesWithAuthors(searchQuery?: string) {
+      const matchStage: any = {};
+
+      if (searchQuery !== "") {
+        // regex matches to searchQuery, option "i" indicates a case-insensitive search
+        matchStage.name = { $regex: searchQuery, $options: 'i' }
+        console.log(matchStage);
+      }
+
       return this.collection.aggregate([
+        ...(Object.keys(matchStage).length > 0 ? [ { $match: matchStage } ] : []),
         {
           $lookup: {
             from: process.env.USERS_COLLECTION_NAME,
@@ -48,5 +57,14 @@ export class ImageProvider {
         .then(results => {
           return results;
         })
+    }
+
+    async updateImageName(imageId: string, newName: string): Promise<number> {
+      // Do keep in mind the type of _id in the DB is ObjectId
+      const matchObjId = new ObjectId(imageId);
+      return this.collection.updateOne({_id: matchObjId}, {$set: {name: newName}})
+        .then(updatedDoc => {
+          return updatedDoc.matchedCount;
+        });
     }
 }

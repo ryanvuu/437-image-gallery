@@ -1,0 +1,41 @@
+### Get all images
+# This is a comment
+GET http://localhost:3000/api/images
+
+### A second example.  Each request must be delimited by a triple hash
+POST http://localhost:3000/api/test
+Content-Type: application/json # Content-Type header is a must if you're sending JSON
+# Request body separated from headers by newline
+{ "a": 1, "b": 2 }
+
+### Image search
+GET http://localhost:3000/api/images?name=sheep
+
+### Update image name (huskies)
+PUT http://localhost:3000/api/images/6838074d04ee5207bf38544b
+Content-Type: application/json
+
+{
+  "newName": "Snow dogs"
+}
+
+### Image id isn't a valid ObjectId
+PUT http://localhost:3000/api/images/idontexist
+Content-Type: application/json
+
+{
+  "newName": "ninja turtles"
+}
+
+### Invalid request format
+PUT http://localhost:3000/api/images/6838074d04ee5207bf38544b
+Content-Type: application/json
+
+
+### New image name too long
+PUT http://localhost:3000/api/images/6838074d04ee5207bf38544b
+Content-Type: application/json
+
+{
+  "newName": "very long new image name that should trigger an error with status code 422 because it exceeds 100 characters"
+}
