@@ -22,6 +22,10 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
       })
   });
 
+  app.get("/api/images/:imageId", (req: Request, res: Response) => {
+    console.log("HIIII");
+  })
+
   app.put("/api/images/:imageId", (req: Request, res: Response) => {
     const imageId = req.params.imageId;
     const newName = req.body.newName;

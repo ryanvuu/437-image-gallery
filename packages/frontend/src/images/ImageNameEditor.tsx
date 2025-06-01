@@ -14,10 +14,11 @@ export function ImageNameEditor(props: INameEditorProps) {
 
     async function handleSubmitPressed() {
         // TODO
+        console.log(props.imageId);
 
         setIsSubmitting(true);
         // ${props.imageId}
-        fetch(`/api/images/${props.imageId}`)
+        fetch(`/api/images`)
           .then(res => {
             if (res.ok) {
               return res.json();
@@ -27,6 +28,7 @@ export function ImageNameEditor(props: INameEditorProps) {
           })
           // response succeeded, but ignore response data
           .then(() => {
+            console.log(`input is: ${input}`);
             props.onUpdateName(props.imageId, input);
             setIsEditingName(false);
             setHasSubmitErr(false);
