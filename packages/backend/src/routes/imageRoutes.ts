@@ -20,7 +20,6 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
       .catch(error => {
         console.error("Failed to retrieve images:", error)
       })
-    console.log(searchQuery);
   });
 
   app.put("/api/images/:imageId", (req: Request, res: Response) => {
@@ -33,6 +32,7 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
         error: "Not Found",
         message: "Image does not exist"
       });
+      return;
     }
 
     // request bad format
@@ -41,6 +41,7 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
         error: "Bad Request",
         message: "New name not of valid type"
       });
+      return;
     }
 
     // image name too long
@@ -49,6 +50,7 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
         error: "Unprocessable Entity",
         message: `Image name exceeds ${MAX_NAME_LENGTH} characters`
       });
+      return;
     }
 
 
