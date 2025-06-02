@@ -5,14 +5,16 @@ import { ImageProvider } from "../ImageProvider";
 const MAX_NAME_LENGTH = 100;
 
 export function registerImageRoutes(app: express.Application, imageProvider: ImageProvider) {
+  // GET all images, or selection of images if given query parameter "name"
   app.get("/api/images", (req: Request, res: Response) => {
     let searchQuery = req.query.name;
     if (typeof searchQuery !== "string") {
       searchQuery = "";
     }
+
     imageProvider.getAllImagesWithAuthors(searchQuery)
       .then(images => {
-        waitDuration(1000)
+        waitDuration(Math.random() * 5000)
           .then(() => {
             res.json(images);
           });
@@ -22,10 +24,35 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
       })
   });
 
+  // GET image by its id
   app.get("/api/images/:imageId", (req: Request, res: Response) => {
-    console.log("HIIII");
+    const imageId = req.params.imageId;
+
+     // invalid image id
+    if (!ObjectId.isValid(imageId)) {
+      res.status(404).send({
+        error: "Not Found",
+        message: "Image does not exist"
+      });
+      return;
+    }
+
+    imageProvider.getImageById(imageId)
+      .then(image => {
+        waitDuration(1000)
+          .then(() => {
+            res.json(image);
+          });
+      })
+      .catch(error => {
+        res.status(404).send({
+          error: "Not Found",
+          message: error.message
+        });
+      });
   })
 
+  // PUT updates an image's name
   app.put("/api/images/:imageId", (req: Request, res: Response) => {
     const imageId = req.params.imageId;
     const newName = req.body.newName;
@@ -56,7 +83,6 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
       });
       return;
     }
-
 
     imageProvider.updateImageName(imageId, newName)
       .then(numDocsUpdated => {

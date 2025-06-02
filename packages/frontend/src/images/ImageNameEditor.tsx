@@ -17,23 +17,30 @@ export function ImageNameEditor(props: INameEditorProps) {
         console.log(props.imageId);
 
         setIsSubmitting(true);
-        // ${props.imageId}
-        fetch(`/api/images`)
+
+        fetch(`/api/images/${props.imageId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({newName: input})
+        })
           .then(res => {
             if (res.ok) {
-              return res.json();
+              return res.status === 204 ? {} : res.json();
             }
             setHasSubmitErr(true);
             throw new Error(`Failed to update image details ${res.status}`);
           })
           // response succeeded, but ignore response data
-          .then(() => {
-            console.log(`input is: ${input}`);
+          .then(data => {
+            console.log(`updated image data is: ${data}`);
             props.onUpdateName(props.imageId, input);
             setIsEditingName(false);
             setHasSubmitErr(false);
           })
           .catch(() => {
+            console.log("hi, in .catch");
             setHasSubmitErr(true);
           })
           .finally(() => {

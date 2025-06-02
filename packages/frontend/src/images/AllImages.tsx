@@ -5,20 +5,16 @@ interface IAllImages {
     imageData: IApiImageData[];
     isFetchingData: boolean;
     hasErrOccurred: boolean;
+    searchPanel: React.ReactNode;
 }
 
 export function AllImages(props: IAllImages) {
-    if (props.isFetchingData) {
-        return <p>Loading images...</p>
-    }
-
-    if (props.hasErrOccurred) {
-        return <p>Failed to load images.</p>
-    }
-
     return (
         <>
             <h2>All Images</h2>
+            {props.searchPanel}
+            {props.isFetchingData ? <p>Loading images...</p> : null}
+            {props.hasErrOccurred ? <p>Failed to load images.</p> : null}
             <ImageGrid images={props.imageData} />
         </>
     );

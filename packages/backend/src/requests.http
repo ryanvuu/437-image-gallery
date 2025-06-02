@@ -11,6 +11,9 @@ Content-Type: application/json # Content-Type header is a must if you're sending
 ### Image search
 GET http://localhost:3000/api/images?name=sheep
 
+### Image search by image id
+GET http://localhost:3000/api/images/6838074d04ee5207bf38544b
+
 ### Update image name (huskies)
 PUT http://localhost:3000/api/images/6838074d04ee5207bf38544b
 Content-Type: application/json

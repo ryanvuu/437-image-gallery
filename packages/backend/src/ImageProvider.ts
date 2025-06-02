@@ -22,6 +22,11 @@ export class ImageProvider {
         return this.collection.find().toArray(); // Without any options, will by default get all documents in the collection as an array.
     }
 
+    getImageById(imageId: string) {
+      const matchObjId = new ObjectId(imageId);
+      return this.collection.findOne({_id: matchObjId});
+    }
+
     getAllImagesWithAuthors(searchQuery?: string) {
       const matchStage: any = {};
 
