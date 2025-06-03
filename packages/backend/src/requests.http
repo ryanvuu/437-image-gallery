@@ -1,6 +1,7 @@
 ### Get all images
 # This is a comment
 GET http://localhost:3000/api/images
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvZXkifQ._GREF0U677rEsGXlgFWPtYTwlGNJ5WIH1CifVbcMs7I
 
 ### A second example.  Each request must be delimited by a triple hash
 POST http://localhost:3000/api/test
@@ -14,9 +15,19 @@ GET http://localhost:3000/api/images?name=sheep
 ### Image search by image id
 GET http://localhost:3000/api/images/6838074d04ee5207bf38544b
 
-### Update image name (huskies)
+### Update image name (huskies) logged in as author (chunklover23)
 PUT http://localhost:3000/api/images/6838074d04ee5207bf38544b
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMifQ.-E2jX_moSwZK7Mk5yDhBGXGmGWL9ZX9XZGdyxs2hQCI
+
+{
+  "newName": "Snow dogs"
+}
+
+### Update image name (huskies) logged in as not author (mike92)
+PUT http://localhost:3000/api/images/6838074d04ee5207bf38544b
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1pa2U5MiJ9.SwOuFK4todoPE5Oo049L5PKSF-XWF1R6T5eGagvV0wQ
 
 {
   "newName": "Snow dogs"
@@ -42,3 +53,51 @@ Content-Type: application/json
 {
   "newName": "very long new image name that should trigger an error with status code 422 because it exceeds 100 characters"
 }
+
+### New user registration
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{ "username": "newuser", "password": "password" }
+
+### New user registration
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{ "username": "mike92", "password": "incorrect" }
+
+### Register user already exists
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{ "username": "newuser", "password": "password123" }
+
+### Register bad request body
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{ "username": "casey" }
+
+### Login successful
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{ "username": "newuser", "password": "password" }
+
+### Login failed: user doesn't exist
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{ "username": "norecordofthisUser", "password": "password" }
+
+### Login failed: incorrect password
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{ "username": "newuser", "password": "abcdefg" }
+
+### Login missing password
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{ "username": "casey" }

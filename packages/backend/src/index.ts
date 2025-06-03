@@ -7,12 +7,17 @@ import { registerImageRoutes } from "./routes/imageRoutes";
 import { register } from "module";
 import { IncomingMessage } from "http";
 import { connectMongo } from "./connectMongo";
+import { registerAuthRoutes } from "./routes/authRoutes";
+import { CredentialsProvider } from "./CredentialsProvider";
+import { verifyAuthToken } from "./verifyAuthToken";
 
 dotenv.config(); // Read the .env file in the current working directory, and load values into process.env.
 const PORT = process.env.PORT || 3000;
 const STATIC_DIR = process.env.STATIC_DIR || "public";
 
 const app = express();
+app.locals.JWT_SECRET = process.env.JWT_SECRET
+
 app.use(express.json());
 
 app.use(express.static(STATIC_DIR));
@@ -34,7 +39,10 @@ app.listen(PORT, () => {
 
 connectMongo().connect()
     .then(client => {
+        const credsProvider = new CredentialsProvider(client);
         const imageProvider = new ImageProvider(client);
+        app.use("/api/*", verifyAuthToken);
+        registerAuthRoutes(app, credsProvider);
         registerImageRoutes(app, imageProvider);
     })
     .catch(error => {

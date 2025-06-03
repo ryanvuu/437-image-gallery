@@ -53,52 +53,77 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
   })
 
   // PUT updates an image's name
-  app.put("/api/images/:imageId", (req: Request, res: Response) => {
+  app.put("/api/images/:imageId", async (req: Request, res: Response): Promise<any> => {
     const imageId = req.params.imageId;
     const newName = req.body.newName;
+    const user = req.user?.username;
+
+    if (!user) {
+      return res.status(400).send({
+        error: "Bad Request",
+        message: "User not logged in"
+      });
+    }
 
     // invalid image id
     if (!ObjectId.isValid(imageId)) {
-      res.status(404).send({
+      return res.status(404).send({
         error: "Not Found",
         message: "Image does not exist"
       });
-      return;
     }
 
     // request bad format
     if (!newName) {
-      res.status(400).send({
+      return res.status(400).send({
         error: "Bad Request",
         message: "New name not of valid type"
       });
-      return;
     }
 
     // image name too long
     if (newName.length > 100) {
-      res.status(422).send({
+      return res.status(422).send({
         error: "Unprocessable Entity",
         message: `Image name exceeds ${MAX_NAME_LENGTH} characters`
       });
-      return;
     }
 
-    imageProvider.updateImageName(imageId, newName)
-      .then(numDocsUpdated => {
-        if (numDocsUpdated > 0) {
-          res.status(204).send();
-        }
-        else {
-          res.status(404).send({
-            error: "Not Found",
-            message: "Image does not exist"
+    imageProvider.getImageOwner(imageId)
+      .then(authorId => {
+        if (!authorId) {
+          return res.status(404).send({
+            error: "Image not found"
           });
         }
+
+        if (authorId !== user) {
+          return res.status(403).send({
+            error: "Forbidden",
+            message: "Not the image owner"
+          })
+        }
+
+        imageProvider.updateImageName(imageId, newName)
+          .then(numDocsUpdated => {
+            if (numDocsUpdated > 0) {
+              res.status(204).send();
+            }
+            else {
+              res.status(404).send({
+                error: "Not Found",
+                message: "Image does not exist"
+              });
+            }
+          })
+          .catch(error => {
+            console.error("Failed to update image name:", error);
+          });
       })
       .catch(error => {
         console.error("Failed to update image name:", error);
-      });
+        return res.status(500).send();
+      })
   })
 }
 

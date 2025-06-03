@@ -18,16 +18,16 @@ export class ImageProvider {
         this.collection = this.mongoClient.db().collection(collectionName);
     }
 
-    getAllImages() {
+    async getAllImages() {
         return this.collection.find().toArray(); // Without any options, will by default get all documents in the collection as an array.
     }
 
-    getImageById(imageId: string) {
+    async getImageById(imageId: string) {
       const matchObjId = new ObjectId(imageId);
       return this.collection.findOne({_id: matchObjId});
     }
 
-    getAllImagesWithAuthors(searchQuery?: string) {
+    async getAllImagesWithAuthors(searchQuery?: string) {
       const matchStage: any = {};
 
       if (searchQuery !== "") {
@@ -71,5 +71,10 @@ export class ImageProvider {
         .then(updatedDoc => {
           return updatedDoc.matchedCount;
         });
+    }
+
+    async getImageOwner(imageId: string): Promise<string | null> {
+      const image = await this.getImageById(imageId);
+      return image ? image.authorId : null;
     }
 }
