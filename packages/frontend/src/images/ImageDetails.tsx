@@ -7,6 +7,7 @@ interface IImageDetails {
     isFetchingData: boolean;
     hasErrOccurred: boolean;
     updateImageName: (imageId: string, newName: string) => void;
+    token: string;
 }
 
 export function ImageDetails(props: IImageDetails) {
@@ -29,7 +30,7 @@ export function ImageDetails(props: IImageDetails) {
         <>
             <h2>{image.name}</h2>
             <p>By {image.author.username}</p>
-            <ImageNameEditor initialValue="" imageId={image.id} onUpdateName={props.updateImageName} />
+            <ImageNameEditor initialValue="" imageId={image.id} onUpdateName={props.updateImageName} token={props.token} />
             <img className="ImageDetails-img" src={image.src} alt={image.name} />
         </>
     )

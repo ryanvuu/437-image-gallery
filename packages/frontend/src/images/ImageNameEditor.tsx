@@ -4,6 +4,7 @@ interface INameEditorProps {
   initialValue: string;
   imageId: string;
   onUpdateName: (imageId: string, newName: string) => void;
+  token: string;
 }
 
 export function ImageNameEditor(props: INameEditorProps) {
@@ -21,7 +22,8 @@ export function ImageNameEditor(props: INameEditorProps) {
         fetch(`/api/images/${props.imageId}`, {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${props.token}`
           },
           body: JSON.stringify({newName: input})
         })
@@ -40,7 +42,6 @@ export function ImageNameEditor(props: INameEditorProps) {
             setHasSubmitErr(false);
           })
           .catch(() => {
-            console.log("hi, in .catch");
             setHasSubmitErr(true);
           })
           .finally(() => {

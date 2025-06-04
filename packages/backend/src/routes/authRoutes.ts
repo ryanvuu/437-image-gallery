@@ -25,6 +25,7 @@ function generateAuthToken(username: string, jwtSecret: string): Promise<string>
 
 export function registerAuthRoutes(app: express.Application, credsProvider: CredentialsProvider) {
   
+  // Register
   app.post("/auth/register", async (req: Request, res: Response): Promise<any> => {
     const { username, password } = req.body;
 
@@ -51,7 +52,15 @@ export function registerAuthRoutes(app: express.Application, credsProvider: Cred
           });
         }
 
-        return res.status(201).send();
+        generateAuthToken(username, req.app.locals.JWT_SECRET)
+          .then(token => {
+            console.log(`Successfully generated authentication token: ${token}`);
+            return res.status(201).send(token);
+          })
+          .catch(error => {
+            console.error("Failed to generate authentication token:", error);
+            return res.status(500).send();
+          });
       })
       .catch(error => {
         console.error("Failed to register user:", error);
@@ -61,6 +70,7 @@ export function registerAuthRoutes(app: express.Application, credsProvider: Cred
       });
   });
 
+  // Login
   app.post("/auth/login", async (req: Request, res: Response): Promise<any> => {
     const { username, password } = req.body;
 
@@ -79,10 +89,11 @@ export function registerAuthRoutes(app: express.Application, credsProvider: Cred
             message: "Bad username or password"
           });
         }
+
         generateAuthToken(username, req.app.locals.JWT_SECRET)
           .then(token => {
             console.log(`Successfully generated authentication token: ${token}`);
-            res.status(200).send(token);
+            return res.status(200).send(token);
           })
           .catch(error => {
             console.error("Failed to generate authentication token:", error);
