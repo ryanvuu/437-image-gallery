@@ -34,9 +34,7 @@ export function ImageNameEditor(props: INameEditorProps) {
             setHasSubmitErr(true);
             throw new Error(`Failed to update image details ${res.status}`);
           })
-          // response succeeded, but ignore response data
-          .then(data => {
-            console.log(`updated image data is: ${data}`);
+          .then(() => {
             props.onUpdateName(props.imageId, input);
             setIsEditingName(false);
             setHasSubmitErr(false);

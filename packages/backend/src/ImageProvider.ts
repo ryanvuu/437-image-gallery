@@ -1,7 +1,7 @@
 import { MongoClient, ObjectId, Collection } from "mongodb";
 
 interface IImageDocument {
-  _id: ObjectId;
+  _id?: ObjectId;
   src: string;
   name: string;
   authorId: string;
@@ -33,34 +33,21 @@ export class ImageProvider {
       if (searchQuery !== "") {
         // regex matches to searchQuery, option "i" indicates a case-insensitive search
         matchStage.name = { $regex: searchQuery, $options: 'i' }
-        console.log(matchStage);
       }
 
       return this.collection.aggregate([
-        ...(Object.keys(matchStage).length > 0 ? [ { $match: matchStage } ] : []),
-        {
-          $lookup: {
-            from: process.env.USERS_COLLECTION_NAME,
-            localField: "authorId",
-            foreignField: "_id",
-            as: "author"
-          }
-        },
-        {
-          $unwind: "$author"
-        },
-        {
-          $addFields: {
-            "id": "$_id",
-            "author.id": "$author._id"
-          }
-        },
-        {
-          $unset: ["_id", "authorId", "author.email", "author._id"]
-        },
+        ...(Object.keys(matchStage).length > 0 ? [ { $match: matchStage } ] : [])
       ]).toArray()
         .then(results => {
-          return results;
+          return results.map(image => ({
+            id: image._id,
+            name: image.name,
+            src: image.src,
+            author: {
+              username: image.authorId,
+              email: `${image.authorId}@example.com`
+            }
+          }));
         })
     }
 
@@ -76,5 +63,9 @@ export class ImageProvider {
     async getImageOwner(imageId: string): Promise<string | null> {
       const image = await this.getImageById(imageId);
       return image ? image.authorId : null;
+    }
+
+    async createImage(image: IImageDocument) {
+      return await this.collection.insertOne(image);
     }
 }

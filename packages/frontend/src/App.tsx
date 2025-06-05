@@ -75,7 +75,7 @@ function App() {
         <Routes>
             <Route element={<MainLayout />}>
                 <Route path={ValidRoutes.HOME} element={<ProtectedRoute authToken={authToken} children={<AllImages imageData={imageData} isFetchingData={isFetchingData} hasErrOccurred={hasErrOccurred} searchPanel={<ImageSearchForm searchString={imageSearchInput} onSearchStringChange={setImageSearchInput} onSearchRequested={handleImageSearch} />} />} />} />
-                <Route path={ValidRoutes.UPLOAD} element={<ProtectedRoute authToken={authToken} children={<UploadPage />} />} />
+                <Route path={ValidRoutes.UPLOAD} element={<ProtectedRoute authToken={authToken} children={<UploadPage authToken={authToken} />} />} />
                 <Route path={ValidRoutes.REGISTER} element={<LoginPage isRegistering={true} setAuthToken={handleAuthTokenChange} />} />
                 <Route path={ValidRoutes.LOGIN} element={<LoginPage isRegistering={false} setAuthToken={handleAuthTokenChange} />} />
 

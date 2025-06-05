@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { ImageProvider } from "../ImageProvider";
+import { handleImageFileErrors, imageMiddlewareFactory } from "../imageUploadMiddleware";
 
 const MAX_NAME_LENGTH = 100;
 
@@ -50,7 +51,7 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
           message: error.message
         });
       });
-  })
+  });
 
   // PUT updates an image's name
   app.put("/api/images/:imageId", async (req: Request, res: Response): Promise<any> => {
@@ -123,8 +124,38 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
       .catch(error => {
         console.error("Failed to update image name:", error);
         return res.status(500).send();
-      })
-  })
+      });
+  });
+
+  app.post(
+    "/api/images",
+    imageMiddlewareFactory.single("image"),
+    handleImageFileErrors,
+    async (req: Request, res: Response): Promise<any> => {
+        // Final handler function after the above two middleware functions finish running
+        if (!req.file || !req.body.name) {
+          return res.status(400).send("Missing an image and/or image name");
+        }
+
+        if (!req.user || typeof req.user.username !== "string") {
+          return res.status(400).send("Invalid user.");
+        }
+
+        const imageDoc = {
+          src: `/uploads/${req.file?.filename}`,
+          name: req.body.name,
+          authorId: req.user.username
+        }
+
+        imageProvider.createImage(imageDoc)
+          .then(() => {
+            res.status(201).send();
+          })
+          .catch(() => {
+            res.status(500).send("Failed to create image, network error.");
+          });
+    }
+  );
 }
 
 function waitDuration(numMs: number): Promise<void> {
